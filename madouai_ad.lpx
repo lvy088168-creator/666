@@ -1,0 +1,12 @@
+#!name=2048AI短剧去广告
+#!desc=拦截 madouai.xyz / 2048ai4.com 广告规则与埋点
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:www\.)?madouai\.xyz/api/v1/ad-v32/rules/.* script-path=https://raw.githubusercontent.com/lvy088168-creator/666/main/madouai_ad.js, requires-body=true, timeout=10
+http-response ^https?://(?:www\.)?madouai\.xyz/api/v1/ad-v32/events.* script-path=https://raw.githubusercontent.com/lvy088168-creator/666/main/madouai_ad.js, requires-body=true, timeout=10
+http-response ^https?://(?:www\.)?madouai\.xyz/api/v1/short-drama-analytics/events.* script-path=https://raw.githubusercontent.com/lvy088168-creator/666/main/madouai_ad.js, requires-body=true, timeout=10
+http-response ^https?://(?:www\.)?madouai\.xyz/api/v1/track/page-view.* script-path=https://raw.githubusercontent.com/lvy088168-creator/666/main/madouai_ad.js, requires-body=true, timeout=10
+
+[Mitm]
+hostname = madouai.xyz, 2048ai4.com
