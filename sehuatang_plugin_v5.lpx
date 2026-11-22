@@ -1,0 +1,9 @@
+#!name=98堂/色花堂增强 v5
+#!desc=规则只匹配帖子/版块页；年龄门与静态资源完全不拦截（修复按钮失效）
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:www\.)?sehuatang\.(net|org)/(forum-|thread-).* script-path=https://cdn.jsdelivr.net/gh/lvy088168-creator/666@main/sehuatang_v4.js, requires-body=true, timeout=10
+
+[Mitm]
+hostname = sehuatang.net, sehuatang.org, *.sehuatang.net, *.sehuatang.org
