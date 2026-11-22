@@ -1,0 +1,9 @@
+#!name=98堂/色花堂增强
+#!desc=去广告+资源提取面板+图片修复+版块页导出
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:www\.)?sehuatang\.(net|org)/.* script-path=https://raw.githubusercontent.com/lvy088168-creator/666/main/sehuatang_proxy.js, requires-body=true, timeout=10
+
+[Mitm]
+hostname = sehuatang.net, sehuatang.org, *.sehuatang.net, *.sehuatang.org
