@@ -1,8 +1,9 @@
 /*
- * 98堂/色花堂 (sehuatang.net) 去广告+增强 - 代理响应脚本 (v3 安全版)
+ * 98堂/色花堂 (sehuatang.net) 去广告+增强 - 代理响应脚本 (v4 页面限定版)
  * 架构: 范式A ($response.body 修改 HTML + 注入浏览器端脚本)
+ * v4: 只注入 thread-/forum- 页面，年龄门(门户/首页)放行，不破坏跳转
  * 优化: MutationObserver 防抖 400ms→1500ms 自适应
- * 安全: 全程 try/catch，任何出错都返回原响应，保证页面可打开
+ * 安全: 全程 try/catch，任何出错都返回原响应
  * 适用: Quantumult X / Loon / Surge (http-response)
  */
 
@@ -12,7 +13,6 @@
   var res = $response;
   var originalBody = (res && res.body) || null;
 
-  // 兜底：出错也返回原页面
   function fallback() {
     try { $done(originalBody ? { body: originalBody } : {}); } catch (e) { $done({}); }
   }
@@ -22,19 +22,17 @@
   try {
     var url = ($request && $request.url) || '';
 
-    var isPage = /sehuatang\.(net|org)/i.test(url) &&
-                 !/\.(js|css|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|mp[34]|zip|rar)(\?|$)/i.test(url) &&
-                 !/api\.php/i.test(url);
+    // v4: 只增强帖子页/版块页；年龄门、门户、首页、其他一律放行
+    var isPage = /sehuatang\.(net|org)\/(forum-|thread-)/i.test(url) &&
+                 !/\.(js|css|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|mp[34]|zip|rar)(\?|$)/i.test(url);
 
     if (!isPage) { $done({ body: originalBody }); return; }
 
     var body = originalBody;
 
-    // 字符串级处理
     body = body.replace(/您需要登录后才可以回帖/g, '<span style="display:none">您需要登录后才可以回帖</span>');
     body = body.replace(/看不到图请挂代理[^<]*/g, '');
 
-    // 注入浏览器端脚本
     var inject = '<script>(function(){' +
       'var scheduled=false, runs=0;' +
       'function rmAds(){' +
