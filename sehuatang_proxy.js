@@ -1,6 +1,7 @@
 /*
- * 98堂/色花堂 (sehuatang.net) 去广告+增强 - 代理响应脚本
+ * 98堂/色花堂 (sehuatang.net) 去广告+增强 - 代理响应脚本 (防抖优化版)
  * 架构: 范式A ($response.body 修改 HTML + 注入浏览器端脚本)
+ * 优化: MutationObserver 防抖 400ms，避免论坛页懒加载图片频繁触发
  * 适用: Quantumult X / Loon / Surge (http-response)
  */
 
@@ -21,29 +22,29 @@
 
   var body = res.body;
 
-  // ========== 第一层：字符串级处理（去广告标记、去登录提示文本） ==========
-  // 隐藏"需登录"提示容器
+  // ========== 字符串级处理 ==========
   body = body.replace(/您需要登录后才可以回帖/g, '<span style="display:none">您需要登录后才可以回帖</span>');
-  // 隐藏"看不到图请挂代理"
   body = body.replace(/看不到图请挂代理[^<]*/g, '');
 
-  // ========== 第二层：注入浏览器端脚本（DOM 操作在这里跑） ==========
+  // ========== 注入浏览器端脚本（防抖优化版） ==========
   var inject = '<script>(function(){' +
+    'var scheduled=false, runs=0;' +
     // 去广告
     'function rmAds(){' +
       'var sels=["td[id^=ad_]","div[id^=ad_]","iframe[src*=casino]","a[href*=yabo]","a[href*=fadafa]","a[href*=bfguoji]","a[href*=aomen]","a[href*=xinpj]","a[href*=PGdianzi]","a[href*=fenghuang]","a[href*=jinsha]","img[src*=banner]","div[class*=banner]"];' +
       'sels.forEach(function(s){document.querySelectorAll(s).forEach(function(e){e.style.display="none"})});' +
       'document.querySelectorAll("td,div,p").forEach(function(e){if(e.innerText&&(e.innerText.indexOf("鲍鱼盒子")>=0||e.innerText.indexOf("邀请好友送现金")>=0))e.style.display="none"});' +
     '}' +
-    // 图片修复
+    // 图片修复（只处理未处理过的，避免重复遍历）
     'function fixImg(){' +
       'document.querySelectorAll("img[file],img[zoomfile]").forEach(function(i){' +
         'var s=i.getAttribute("file")||i.getAttribute("zoomfile");' +
         'if(s&&!/^https?:/.test(s)&&!/^data:/.test(s))i.src="https://sehuatang.net/"+s.replace(/^\\//,"");' +
+        'i.removeAttribute("file");i.removeAttribute("zoomfile");' +
         'i.style.maxWidth="100%";i.style.height="auto";' +
       '});' +
     '}' +
-    // 资源面板
+    // 资源面板（已存在则跳过）
     'function panel(){' +
       'if(document.getElementById("sht-panel"))return;' +
       'var RE=/(magnet:\\?xt=urn:btih:[a-zA-Z0-9]+|ed2k:\\/\\/[^\\s"\'<>]+|https?:\\/\\/[^\\s"\'<>]*(?:115\\.com|pan\\.baidu\\.com|lanzou[lx]\\.com|alipan\\.com|quark\\.cn|ctfile\\.com)[^\\s"\'<>]*)/gi;' +
@@ -66,12 +67,18 @@
         'if(a.length){navigator.clipboard.writeText(a.join("\\n")).then(function(){alert("\\u5DF2\\u590D\\u5236 "+a.length+" \\u4E2A")})}else alert("\\u672C\\u9875\\u65E0\\u78C1\\u529F/ED2K")};' +
       'document.body.appendChild(b);' +
     '}' +
-    'function all(){try{rmAds();fixImg();panel();expBtn()}catch(e){}}' +
+    // 主函数
+    'function all(){try{runs++;rmAds();fixImg();panel();expBtn()}catch(e){}}' +
+    // 防抖调度：DOM 变化合并到 400ms 一次；前10秒活跃期后放宽到 1500ms
+    'function schedule(){' +
+      'if(scheduled)return;scheduled=true;' +
+      'var delay=runs<25?400:1500;' +
+      'setTimeout(function(){scheduled=false;all()},delay);' +
+    '}' +
     'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",all);else all();' +
-    'try{new MutationObserver(all).observe(document.body,{childList:true,subtree:true})}catch(e){}' +
+    'try{new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true})}catch(e){}' +
   '})();</script>';
 
-  // 注入到 </head> 前（优先）或 </body> 前
   if (body.indexOf('</head>') >= 0) {
     body = body.replace('</head>', inject + '</head>');
   } else if (body.indexOf('</body>') >= 0) {
