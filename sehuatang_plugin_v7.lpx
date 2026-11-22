@@ -1,0 +1,9 @@
+#!name=98堂/色花堂增强 v7
+#!desc=HTML嗅探：只有HTML响应才注入，AJAX/JSON/图片原样放行（修复模块加载）
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:www\.)?sehuatang\.(net|org)/(?!$|static/|portal\.php|api\.php).* script-path=https://cdn.jsdelivr.net/gh/lvy088168-creator/666@main/sehuatang_v7.js, requires-body=true, timeout=10
+
+[Mitm]
+hostname = sehuatang.net, sehuatang.org, *.sehuatang.net, *.sehuatang.org
