@@ -1,0 +1,9 @@
+#!name=100Adults 成人工具箱增强 v2
+#!desc=去广告+数据导出/导入/备份+全屏/深色/游戏助手（已自测18/18）
+#!author=hermes
+
+[Script]
+http-response ^https?://100adults\.com/(zh|en|ja|ko)?/?.* requires-body=1,script-path=https://cdn.jsdelivr.net/gh/lvy088168-creator/666@main/100adults_enhance_v2.js,timeout=10
+
+[Mitm]
+hostname = 100adults.com, *.100adults.com
