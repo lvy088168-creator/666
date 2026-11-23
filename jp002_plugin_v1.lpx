@@ -1,0 +1,9 @@
+#!name=街拍小站增强 v1
+#!desc=去广告+登录墙隐藏+图片修复+资源面板+版块导出（复用sehuatang v10逻辑）
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:www\.)?jp002\.com/(?!$|static/|portal\.php|api\.php).* requires-body=1,script-path=https://cdn.jsdelivr.net/gh/lvy088168-creator/666@main/jp002_enhance_v1.js,timeout=10
+
+[Mitm]
+hostname = jp002.com, *.jp002.com, www.jp002.com
