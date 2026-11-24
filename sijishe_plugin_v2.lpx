@@ -1,0 +1,9 @@
+#!name=司机社增强 v2
+#!desc=番号识别提取+求出处智能标记+番号查询面板（专业版，不做花哨功能）
+#!author=hermes
+
+[Script]
+http-response ^https?://(?:xsijishe\.(?:net|com)|sjsvip\.com|sijshe\.com\.cn)/.*$ script-path=https://cdn.jsdelivr.net/gh/lvy088168-creator/666@main/sijishe_enhance_v2.js, requires-body=1, timeout=10
+
+[Mitm]
+hostname = xsijishe.net, xsijishe.com, sjsvip.com, sijshe.com.cn, *.xsijishe.net, *.xsijishe.com, *.sjsvip.com, *.sijshe.com.cn
